@@ -40,7 +40,7 @@ app.use(express.urlencoded({ extended: true }));
 /**
  * Health Check Route
  */
-app.get("/health", (req, res) => {
+app.get("/health", (_req, res) => {
   res.json({
     status: "OK",
     message: "TaskMaster API is running",
@@ -75,9 +75,11 @@ app.use((req, res) => {
 app.use(
   (
     err: Error,
-    req: express.Request,
+    //Just added underscores to unused parameters. This tells TypeScript "I know they're unused, it's intentional" so it stops complaining.
+    _req: express.Request,
     res: express.Response,
-    next: express.NextFunction
+    //Just added underscores to unused parameters. This tells TypeScript "I know they're unused, it's intentional" so it stops complaining.
+    _next: express.NextFunction
   ) => {
     console.error("Error:", err);
 
