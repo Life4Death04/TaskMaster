@@ -3,6 +3,7 @@ import cors from "cors";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
 import { env } from "./config/env.js";
+import { ZodError } from "zod";
 
 // Initialize Express app
 const app: Application = express();
@@ -74,20 +75,34 @@ app.use((req, res) => {
  */
 app.use(
   (
-    err: Error,
-    //Just added underscores to unused parameters. This tells TypeScript "I know they're unused, it's intentional" so it stops complaining.
+    err: unknown,
     _req: express.Request,
     res: express.Response,
-    //Just added underscores to unused parameters. This tells TypeScript "I know they're unused, it's intentional" so it stops complaining.
     _next: express.NextFunction
-  ) => {
-    console.error("Error:", err);
+  ): void => {
+    // Zod validation errors → 400 Bad Request with field issues
+    if (err instanceof ZodError) {
+      res.status(400).json({
+        success: false,
+        message: "Validation failed",
+        errors: err.issues.map((i) => ({
+          path: i.path.join("."),
+          message: i.message,
+        })),
+      });
+      return;
+    }
+
+    const error = err as Error;
+    console.error("Error:", error);
 
     res.status(500).json({
       success: false,
       message:
-        env.NODE_ENV === "development" ? err.message : "Internal server error",
-      ...(env.NODE_ENV === "development" && { stack: err.stack }),
+        env.NODE_ENV === "development"
+          ? error.message
+          : "Internal server error",
+      ...(env.NODE_ENV === "development" && { stack: error.stack }),
     });
   }
 );
