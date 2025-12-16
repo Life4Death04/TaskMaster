@@ -1,4 +1,5 @@
 import express, { type Application } from "express";
+import userRouter from "./routes/user.routes.js";
 import cors from "cors";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
@@ -53,11 +54,7 @@ app.get("/health", (_req, res) => {
 /**
  * API Routes
  */
-// TODO: Import and use routes here
-// app.use('/api/users', userRoutes);
-// app.use('/api/tasks', taskRoutes);
-// app.use('/api/lists', listRoutes);
-// app.use('/api/settings', settingsRoutes);
+app.use("/api", userRouter);
 
 /**
  * 404 Handler
