@@ -5,6 +5,12 @@ import helmet from "helmet";
 import rateLimit from "express-rate-limit";
 import { env } from "./config/env.js";
 import { ZodError } from "zod";
+import type {
+  HealthCheckResponse,
+  ApiNotFoundResponse,
+  ApiValidationErrorResponse,
+  ApiErrorResponse,
+} from "./types/response.types.js";
 
 // Initialize Express app
 const app: Application = express();
@@ -43,12 +49,13 @@ app.use(express.urlencoded({ extended: true }));
  * Health Check Route
  */
 app.get("/health", (_req, res) => {
-  res.json({
+  const response: HealthCheckResponse = {
     status: "OK",
     message: "TaskMaster API is running",
     timestamp: new Date().toISOString(),
     environment: env.NODE_ENV,
-  });
+  };
+  res.json(response);
 });
 
 /**
@@ -63,11 +70,12 @@ apiRoutes.forEach((router) => {
  * 404 Handler
  */
 app.use((req, res) => {
-  res.status(404).json({
+  const response: ApiNotFoundResponse = {
     success: false,
     message: "Route not found",
     path: req.originalUrl,
-  });
+  };
+  res.status(404).json(response);
 });
 
 /**
@@ -78,33 +86,35 @@ app.use(
     err: unknown,
     _req: express.Request,
     res: express.Response,
-    _next: express.NextFunction
+    _next: express.NextFunction,
   ): void => {
     // Zod validation errors → 400 Bad Request with field issues
     if (err instanceof ZodError) {
-      res.status(400).json({
+      const response: ApiValidationErrorResponse = {
         success: false,
         message: "Validation failed",
         errors: err.issues.map((i) => ({
           path: i.path.join("."),
           message: i.message,
         })),
-      });
+      };
+      res.status(400).json(response);
       return;
     }
 
     const error = err as Error;
     console.error("Error:", error);
 
-    res.status(500).json({
+    const response: ApiErrorResponse = {
       success: false,
       message:
         env.NODE_ENV === "development"
           ? error.message
           : "Internal server error",
       ...(env.NODE_ENV === "development" && { stack: error.stack }),
-    });
-  }
+    };
+    res.status(500).json(response);
+  },
 );
 
 /**
