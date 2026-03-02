@@ -1,8 +1,5 @@
 import express, { type Application } from "express";
-import userRouter from "./routes/user.routes.js";
-import taskRouter from "./routes/task.routes.js";
-import listRouter from "./routes/list.routes.js";
-import settingsRouter from "./routes/settings.routes.js";
+import { apiRoutes } from "./routes/index.js";
 import cors from "cors";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
@@ -33,7 +30,7 @@ app.use(
   cors({
     origin: env.CORS_ORIGIN,
     credentials: true,
-  })
+  }),
 );
 
 /**
@@ -56,11 +53,11 @@ app.get("/health", (_req, res) => {
 
 /**
  * API Routes
+ * All routes are registered under /api prefix
  */
-app.use("/api", userRouter);
-app.use("/api", taskRouter);
-app.use("/api", listRouter);
-app.use("/api", settingsRouter);
+apiRoutes.forEach((router) => {
+  app.use("/api", router);
+});
 
 /**
  * 404 Handler
