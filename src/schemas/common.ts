@@ -15,7 +15,7 @@ export const languageEnum = z.enum(["EN", "ES"]);
 export const idSchema = z.number().int().positive();
 // For URL params (which are always strings) - wraps as object for validation
 export const idParamsSchema = z.object({
-  id: z.string().regex(/^\d+$/, "ID must be a positive integer"),
+  id: z.coerce.number().int().positive(),
 });
 export const colorHexSchema = z
   .string()
