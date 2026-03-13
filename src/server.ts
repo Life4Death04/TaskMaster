@@ -8,6 +8,7 @@ import helmet from "helmet";
 import rateLimit from "express-rate-limit";
 import { env } from "./config/env.js";
 import { ZodError } from "zod";
+import { AppError } from "./utils/errors.js";
 
 // Initialize Express app
 const app: Application = express();
@@ -33,7 +34,7 @@ app.use(
   cors({
     origin: env.CORS_ORIGIN,
     credentials: true,
-  })
+  }),
 );
 
 /**
@@ -81,7 +82,7 @@ app.use(
     err: unknown,
     _req: express.Request,
     res: express.Response,
-    _next: express.NextFunction
+    _next: express.NextFunction,
   ): void => {
     // Zod validation errors → 400 Bad Request with field issues
     if (err instanceof ZodError) {
@@ -96,6 +97,16 @@ app.use(
       return;
     }
 
+    // Custom AppError instances → use their status code
+    if (err instanceof AppError) {
+      res.status(err.statusCode).json({
+        success: false,
+        message: err.message,
+      });
+      return;
+    }
+
+    // Generic errors → 500 Internal Server Error
     const error = err as Error;
     console.error("Error:", error);
 
@@ -107,7 +118,7 @@ app.use(
           : "Internal server error",
       ...(env.NODE_ENV === "development" && { stack: error.stack }),
     });
-  }
+  },
 );
 
 /**
