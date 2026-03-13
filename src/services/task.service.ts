@@ -1,5 +1,6 @@
 import { prisma } from "../config/database.js";
 import type { Task, Prisma } from "@prisma/client";
+import { NotFoundError } from "../utils/errors.js";
 
 // Service: encapsulates task business logic and data access with Prisma
 // Controllers call these functions; services should be unit-testable
@@ -14,7 +15,7 @@ export async function fetchUserTasks(userId: number): Promise<Task[]> {
   });
 
   if (!user) {
-    throw new Error("User not found");
+    throw new NotFoundError("User not found");
   }
 
   const tasks = await prisma.task.findMany({
@@ -44,7 +45,7 @@ export async function createTask(input: {
   });
 
   if (!user) {
-    throw new Error("User not found");
+    throw new NotFoundError("User not found");
   }
 
   // If listId is provided, verify it exists and belongs to the user
@@ -57,7 +58,7 @@ export async function createTask(input: {
     });
 
     if (!list) {
-      throw new Error("List not found or does not belong to user");
+      throw new NotFoundError("List not found or does not belong to user");
     }
   }
 
@@ -97,7 +98,7 @@ export async function updateTask(input: {
   });
 
   if (!user) {
-    throw new Error("User not found");
+    throw new NotFoundError("User not found");
   }
 
   // Verify task exists and belongs to user
@@ -109,7 +110,7 @@ export async function updateTask(input: {
   });
 
   if (!existingTask) {
-    throw new Error("Task not found or does not belong to user");
+    throw new NotFoundError("Task not found or does not belong to user");
   }
 
   // If listId is being updated and provided, verify it exists and belongs to the user
@@ -122,7 +123,7 @@ export async function updateTask(input: {
     });
 
     if (!list) {
-      throw new Error("List not found or does not belong to user");
+      throw new NotFoundError("List not found or does not belong to user");
     }
   }
 
@@ -155,7 +156,7 @@ export async function updateTask(input: {
  */
 export async function deleteTaskById(
   authorId: number,
-  taskId: number
+  taskId: number,
 ): Promise<void> {
   // Verify user exists
   const user = await prisma.user.findUnique({
@@ -163,7 +164,7 @@ export async function deleteTaskById(
   });
 
   if (!user) {
-    throw new Error("User not found");
+    throw new NotFoundError("User not found");
   }
 
   // Verify task exists and belongs to user before deleting
@@ -175,7 +176,7 @@ export async function deleteTaskById(
   });
 
   if (!task) {
-    throw new Error("Task not found or does not belong to user");
+    throw new NotFoundError("Task not found or does not belong to user");
   }
 
   await prisma.task.delete({
@@ -188,7 +189,7 @@ export async function deleteTaskById(
  */
 export async function toggleTaskArchived(
   authorId: number,
-  taskId: number
+  taskId: number,
 ): Promise<Task> {
   // Verify user exists
   const user = await prisma.user.findUnique({
@@ -196,7 +197,7 @@ export async function toggleTaskArchived(
   });
 
   if (!user) {
-    throw new Error("User not found");
+    throw new NotFoundError("User not found");
   }
 
   // Find task and verify it belongs to user
@@ -208,7 +209,7 @@ export async function toggleTaskArchived(
   });
 
   if (!task) {
-    throw new Error("Task not found or does not belong to user");
+    throw new NotFoundError("Task not found or does not belong to user");
   }
 
   // Toggle archived status
@@ -225,7 +226,7 @@ export async function toggleTaskArchived(
  */
 export async function toggleTaskStatus(
   authorId: number,
-  taskId: number
+  taskId: number,
 ): Promise<Task> {
   // Verify user exists
   const user = await prisma.user.findUnique({
@@ -233,7 +234,7 @@ export async function toggleTaskStatus(
   });
 
   if (!user) {
-    throw new Error("User not found");
+    throw new NotFoundError("User not found");
   }
 
   // Find task and verify it belongs to user
@@ -245,7 +246,7 @@ export async function toggleTaskStatus(
   });
 
   if (!task) {
-    throw new Error("Task not found or does not belong to user");
+    throw new NotFoundError("Task not found or does not belong to user");
   }
 
   // Toggle between TODO and DONE; any other status will be set to DONE
@@ -264,7 +265,7 @@ export async function toggleTaskStatus(
  */
 export async function getTaskById(
   authorId: number,
-  taskId: number
+  taskId: number,
 ): Promise<Task | null> {
   // Verify user exists
   const user = await prisma.user.findUnique({
@@ -272,7 +273,7 @@ export async function getTaskById(
   });
 
   if (!user) {
-    throw new Error("User not found");
+    throw new NotFoundError("User not found");
   }
 
   const task = await prisma.task.findFirst({
