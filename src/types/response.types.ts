@@ -13,6 +13,30 @@ export interface ApiSuccessResponse<T = unknown> {
 }
 
 /**
+ * Pagination Metadata
+ * Contains information about the current page and available pages
+ */
+export interface PaginationMeta {
+  total: number; // Total number of items in database
+  page: number; // Current page number
+  limit: number; // Items per page
+  totalPages: number; // Total number of pages (calculated)
+  hasNextPage: boolean; // Whether there's a next page available
+  hasPreviousPage: boolean; // Whether there's a previous page available
+}
+
+/**
+ * Paginated Response
+ * Used when returning a list of items with pagination
+ */
+export interface PaginatedResponse<T> {
+  success: true;
+  data: T[]; // Array of items for current page
+  pagination: PaginationMeta; // Pagination metadata
+  message?: string;
+}
+
+/**
  * Generic error response
  */
 export interface ApiErrorResponse {

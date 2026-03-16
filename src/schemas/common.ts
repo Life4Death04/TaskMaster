@@ -26,8 +26,33 @@ export const colorHexSchema = z
 // ISO date string (keep flexible, services can parse)
 export const isoDateString = z.iso.datetime().or(z.string().min(1));
 
+/**
+ * Pagination Query Parameters Schema
+ * - page: Which page to retrieve (default: 1)
+ * - limit: How many items per page (default: 10, max: 100)
+ * 
+ * Example usage: GET /api/tasks?page=2&limit=20
+ */
+export const paginationQuerySchema = z.object({
+  // .coerce converts string to number (query params are always strings)
+  page: z.coerce
+    .number()
+    .int()
+    .positive()
+    .default(1)
+    .catch(1), // If invalid, use 1
+  limit: z.coerce
+    .number()
+    .int()
+    .positive()
+    .max(100) // Prevent requesting too many items
+    .default(10)
+    .catch(10), // If invalid, use 10
+});
+
 export type StatusEnum = z.infer<typeof statusEnum>;
 export type PriorityEnum = z.infer<typeof priorityEnum>;
 export type ThemeEnum = z.infer<typeof themeEnum>;
 export type DateFormatEnum = z.infer<typeof dateFormatEnum>;
 export type LanguageEnum = z.infer<typeof languageEnum>;
+export type PaginationQuery = z.infer<typeof paginationQuerySchema>;
