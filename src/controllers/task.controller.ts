@@ -46,10 +46,10 @@ export async function fetchTasks(
     // If pagination params are provided, use paginated endpoint
     if (page !== undefined || limit !== undefined) {
       // Parse and sanitize pagination parameters
-      // Default: 20 tasks per page
+      // Default: 10 tasks per page
       const { page: validPage, limit: validLimit } = sanitizePagination(
         Number(page) || 1,
-        Number(limit) || 20,
+        Number(limit) || 10,
       );
 
       // Fetch paginated tasks
