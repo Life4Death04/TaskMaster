@@ -4,7 +4,6 @@ import type {
   CreateTaskInput,
   UpdateTaskInput,
 } from "../schemas/task.schema.js";
-import type { PaginationQuery } from "../schemas/common.js";
 import { sanitizePagination } from "../utils/pagination.js";
 
 // Controller: handles HTTP layer for tasks, delegates business logic to service
