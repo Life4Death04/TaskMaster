@@ -1,6 +1,8 @@
 import { prisma } from "../config/database.js";
 import type { List } from "@prisma/client";
 import { NotFoundError } from "../utils/errors.js";
+import { calculateSkip, calculatePaginationMeta } from "../utils/pagination.js";
+import type { PaginationMeta } from "../types/response.types.js";
 
 // Service: encapsulates list business logic and data access with Prisma
 
@@ -35,7 +37,8 @@ export async function createList(input: {
 }
 
 /**
- * Get all lists for a user with tasks included
+ * Get all lists for a user with tasks included (non-paginated)
+ * Use this when you need all lists at once
  */
 export async function getListsByUserId(
   userId: number,
@@ -58,6 +61,57 @@ export async function getListsByUserId(
   });
 
   return lists;
+}
+
+/**
+ * Get lists for a user with pagination (tasks included)
+ * Use this for endpoints that return large lists
+ * 
+ * @param userId - The ID of the user
+ * @param page - Current page number (1-indexed)
+ * @param limit - Number of items per page
+ * @returns Object containing lists array (with tasks) and pagination metadata
+ */
+export async function getListsByUserIdPaginated(
+  userId: number,
+  page: number,
+  limit: number,
+): Promise<{
+  lists: (List & { tasks: any[] })[];
+  pagination: PaginationMeta;
+}> {
+  // Verify user exists
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+  });
+
+  if (!user) {
+    throw new NotFoundError("User not found");
+  }
+
+  // 1. Count total lists for this user
+  const total = await prisma.list.count({
+    where: { authorId: userId },
+  });
+
+  // 2. Calculate skip value for pagination
+  const skip = calculateSkip(page, limit);
+
+  // 3. Fetch paginated lists with their tasks
+  const lists = await prisma.list.findMany({
+    where: { authorId: userId },
+    include: {
+      tasks: true, // Include all tasks for each list
+    },
+    orderBy: { id: "desc" }, // Most recent first
+    skip, // Skip previous pages
+    take: limit, // Take only 'limit' number of lists
+  });
+
+  // 4. Calculate pagination metadata
+  const pagination = calculatePaginationMeta(total, page, limit);
+
+  return { lists, pagination };
 }
 
 /**
