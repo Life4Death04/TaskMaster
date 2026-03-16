@@ -31,7 +31,7 @@ export const updateTaskSchema = z
 
 // Task: toggle archived/status via params
 export const taskIdParamsSchema = z.object({
-  taskId: z.string().regex(/^\d+$/, "Task ID must be a positive integer"),
+  taskId: z.coerce.number().int().positive(),
 });
 export const toggleStatusBodySchema = z.object({ status: statusEnum });
 

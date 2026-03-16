@@ -5,6 +5,7 @@ import helmet from "helmet";
 import rateLimit from "express-rate-limit";
 import { env } from "./config/env.js";
 import { ZodError } from "zod";
+
 import type {
   HealthCheckResponse,
   ApiNotFoundResponse,
@@ -102,6 +103,16 @@ app.use(
       return;
     }
 
+    // Custom AppError instances → use their status code
+    if (err instanceof AppError) {
+      res.status(err.statusCode).json({
+        success: false,
+        message: err.message,
+      });
+      return;
+    }
+
+    // Generic errors → 500 Internal Server Error
     const error = err as Error;
     console.error("Error:", error);
 

@@ -14,7 +14,7 @@ import type {
 export async function fetchTasks(
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) {
   try {
     // Get userId from authenticated request
@@ -45,7 +45,7 @@ export async function fetchTasks(
 export async function createTask(
   req: Request<{}, {}, CreateTaskInput>,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) {
   try {
     // Get userId from authenticated request
@@ -80,7 +80,7 @@ export async function createTask(
 export async function updateTask(
   req: Request<{}, {}, UpdateTaskInput>,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) {
   try {
     // Get userId from authenticated request
@@ -115,7 +115,7 @@ export async function updateTask(
 export async function deleteTask(
   req: Request<{ taskId: string }>,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) {
   try {
     // Get userId from authenticated request
@@ -152,7 +152,7 @@ export async function deleteTask(
 export async function toggleArchived(
   req: Request<{ taskId: string }>,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) {
   try {
     // Get userId from authenticated request
@@ -190,7 +190,7 @@ export async function toggleArchived(
 export async function toggleStatus(
   req: Request<{ taskId: string }>,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) {
   try {
     // Get userId from authenticated request
@@ -228,7 +228,7 @@ export async function toggleStatus(
 export async function getTask(
   req: Request<{ taskId: string }>,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) {
   try {
     // Get userId from authenticated request

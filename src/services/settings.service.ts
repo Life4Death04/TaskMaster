@@ -1,5 +1,6 @@
 import { prisma } from "../config/database.js";
 import type { UserSettings } from "@prisma/client";
+import { NotFoundError } from "../utils/errors.js";
 
 // Service: encapsulates settings business logic and data access with Prisma
 
@@ -14,7 +15,7 @@ export async function getUserSettings(userId: number): Promise<UserSettings> {
   });
 
   if (!user) {
-    throw new Error("User not found");
+    throw new NotFoundError("User not found");
   }
 
   // Try to find existing settings
@@ -56,7 +57,7 @@ export async function updateUserSettings(input: {
   });
 
   if (!user) {
-    throw new Error("User not found");
+    throw new NotFoundError("User not found");
   }
 
   // Check if settings exist

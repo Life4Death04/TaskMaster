@@ -1,5 +1,6 @@
 import { prisma } from "../config/database.js";
 import type { List } from "@prisma/client";
+import { NotFoundError } from "../utils/errors.js";
 
 // Service: encapsulates list business logic and data access with Prisma
 
@@ -18,7 +19,7 @@ export async function createList(input: {
   });
 
   if (!user) {
-    throw new Error("User not found");
+    throw new NotFoundError("User not found");
   }
 
   const list = await prisma.list.create({
@@ -45,7 +46,7 @@ export async function getListsByUserId(
   });
 
   if (!user) {
-    throw new Error("User not found");
+    throw new NotFoundError("User not found");
   }
 
   const lists = await prisma.list.findMany({
@@ -72,7 +73,7 @@ export async function getSingleListById(
   });
 
   if (!user) {
-    throw new Error("User not found");
+    throw new NotFoundError("User not found");
   }
 
   // Find list and verify it belongs to user
@@ -87,7 +88,7 @@ export async function getSingleListById(
   });
 
   if (!list) {
-    throw new Error("List not found or does not belong to user");
+    throw new NotFoundError("List not found or does not belong to user");
   }
 
   return list;
@@ -109,7 +110,7 @@ export async function updateListById(input: {
   });
 
   if (!user) {
-    throw new Error("User not found");
+    throw new NotFoundError("User not found");
   }
 
   // Find list and verify it belongs to user
@@ -121,7 +122,7 @@ export async function updateListById(input: {
   });
 
   if (!existingList) {
-    throw new Error("List not found or does not belong to user");
+    throw new NotFoundError("List not found or does not belong to user");
   }
 
   // Build update data dynamically
@@ -153,7 +154,7 @@ export async function deleteListById(
   });
 
   if (!user) {
-    throw new Error("User not found");
+    throw new NotFoundError("User not found");
   }
 
   // Find list and verify it belongs to user
@@ -165,7 +166,7 @@ export async function deleteListById(
   });
 
   if (!list) {
-    throw new Error("List not found or does not belong to user");
+    throw new NotFoundError("List not found or does not belong to user");
   }
 
   // Delete all tasks in the list first
@@ -192,7 +193,7 @@ export async function toggleListFavorite(
   });
 
   if (!user) {
-    throw new Error("User not found");
+    throw new NotFoundError("User not found");
   }
 
   // Find list and verify it belongs to user
@@ -204,7 +205,7 @@ export async function toggleListFavorite(
   });
 
   if (!list) {
-    throw new Error("List not found or does not belong to user");
+    throw new NotFoundError("List not found or does not belong to user");
   }
 
   // Toggle the favorite status
