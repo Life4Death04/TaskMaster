@@ -12,6 +12,7 @@ import type {
   ApiValidationErrorResponse,
   ApiErrorResponse,
 } from "./types/response.types.js";
+import { AppError } from "./utils/errors.js";
 
 // Initialize Express app
 const app: Application = express();
