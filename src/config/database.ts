@@ -1,5 +1,3 @@
-/// <reference types="node" />
-
 /**
  * Prisma Client Singleton
  * Creates a single instance of Prisma Client to be shared across the application
