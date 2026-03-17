@@ -1,4 +1,4 @@
-import type { RequestHandler } from "express";
+import type { Request, Response, NextFunction, RequestHandler } from "express";
 import { ZodError } from "zod";
 import type { ZodSchema } from "zod";
 
@@ -12,7 +12,7 @@ export function validate(schemas: {
   params?: ZodSchema;
   query?: ZodSchema;
 }): RequestHandler {
-  return (req, _res, next) => {
+  return (req: Request, _res: Response, next: NextFunction) => {
     try {
       if (schemas.body) {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
