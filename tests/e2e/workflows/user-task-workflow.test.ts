@@ -103,21 +103,13 @@ describe("E2E - User Registration and Task Management Workflow", () => {
 
     expect(toggleResponse.body.data.status).toBe("TODO"); // DONE → TODO
 
-    // Step 8: Archive a task
-    const archiveResponse = await request(app)
-      .patch(`/api/tasks/${task2Id}/toggle-archived`)
-      .set("Authorization", `Bearer ${token}`)
-      .expect(200);
-
-    expect(archiveResponse.body.data.archived).toBe(true);
-
-    // Step 9: Delete a task
+    // Step 8: Delete a task
     await request(app)
       .delete(`/api/tasks/${task1Id}`)
       .set("Authorization", `Bearer ${token}`)
       .expect(200);
 
-    // Step 10: Verify task is deleted
+    // Step 9: Verify task is deleted
     const finalTasksResponse = await request(app)
       .get("/api/tasks")
       .set("Authorization", `Bearer ${token}`)
@@ -126,7 +118,7 @@ describe("E2E - User Registration and Task Management Workflow", () => {
     expect(finalTasksResponse.body.data).toHaveLength(1);
     expect(finalTasksResponse.body.data[0].id).toBe(task2Id);
 
-    // Step 11: Update user profile
+    // Step 10: Update user profile
     const updateProfileResponse = await request(app)
       .put("/api/users/me")
       .set("Authorization", `Bearer ${token}`)
@@ -141,13 +133,13 @@ describe("E2E - User Registration and Task Management Workflow", () => {
     // Phone number not implemented
     /* expect(updateProfileResponse.body.user.phoneNumber).toBe("+1234567890"); */
 
-    // Step 12: Delete account (cascades to all data)
+    // Step 11: Delete account (cascades to all data)
     await request(app)
       .delete("/api/users/me")
       .set("Authorization", `Bearer ${token}`)
       .expect(204);
 
-    // Step 13: Verify everything is cleaned up
+    // Step 12: Verify everything is cleaned up
     const deletedUser = await prisma.user.findUnique({
       where: { id: userId },
     });

@@ -51,7 +51,6 @@ model Task {
   author      User      @relation(fields: [authorId], references: [id])
   listId      Int? // List to which the task belongs
   list        List?     @relation(fields: [listId], references: [id])
-  archived    Boolean   @default(false) // New field to indicate if the task is archived
 }
 
 model UserSettings {

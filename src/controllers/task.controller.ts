@@ -187,44 +187,6 @@ export async function deleteTask(
 }
 
 /**
- * Toggle task archived status
- * PATCH /api/tasks/:taskId/toggle-archived
- */
-export async function toggleArchived(
-  req: Request<{ taskId: string }>,
-  res: Response,
-  next: NextFunction,
-) {
-  try {
-    // Get userId from authenticated request
-    const userIdRaw = req.user?.sub ?? req.user?.id;
-    const userId =
-      typeof userIdRaw === "string" ? Number(userIdRaw) : userIdRaw;
-
-    if (!userId || Number.isNaN(userId)) {
-      res.status(401).json({ message: "Unauthorized" });
-      return;
-    }
-
-    const taskId = Number(req.params.taskId);
-    if (Number.isNaN(taskId)) {
-      res.status(400).json({ message: "Invalid task ID" });
-      return;
-    }
-
-    const task = await TaskService.toggleTaskArchived(userId, taskId);
-
-    res.status(200).json({
-      success: true,
-      message: "Task archived status toggled successfully",
-      data: task,
-    });
-  } catch (err) {
-    next(err);
-  }
-}
-
-/**
  * Toggle task status (TODO <-> DONE)
  * PATCH /api/tasks/:taskId/toggle-status
  */

@@ -67,7 +67,6 @@ export interface CreateTaskRequest {
   priority?: Priority;
   authorId: number;
   listId?: number;
-  archived?: boolean;
 }
 
 export interface UpdateTaskRequest {
@@ -78,7 +77,6 @@ export interface UpdateTaskRequest {
   dueDate?: Date | string;
   priority?: Priority;
   listId?: number;
-  archived?: boolean;
 }
 
 export interface TaskResponse {

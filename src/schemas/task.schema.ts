@@ -9,7 +9,6 @@ export const createTaskSchema = z.object({
   dueDate: isoDateString.optional().or(z.literal("")),
   priority: priorityEnum.default("LOW"),
   listId: idSchema.optional(),
-  archived: z.boolean().optional(),
 });
 
 // Task: update (partial but requires id from params, not body)
@@ -22,14 +21,13 @@ export const updateTaskSchema = z
     dueDate: isoDateString.optional().or(z.literal("")),
     priority: priorityEnum.optional(),
     listId: idSchema.optional(),
-    archived: z.boolean().optional(),
   })
   .refine((data) => Object.keys(data).some((k) => k !== "id"), {
     message: "At least one field besides id must be provided",
     path: ["id"],
   });
 
-// Task: toggle archived/status via params
+// Task: toggle status via params
 export const taskIdParamsSchema = z.object({
   taskId: z.coerce.number().int().positive(),
 });
