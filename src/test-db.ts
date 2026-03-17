@@ -2,7 +2,7 @@
  * Database Connection Test
  * Run this to verify your database connection is working
  */
-
+/* 
 import { prisma } from "./config/database.js";
 
 async function testConnection() {
@@ -35,3 +35,4 @@ async function testConnection() {
 }
 
 testConnection();
+ */
