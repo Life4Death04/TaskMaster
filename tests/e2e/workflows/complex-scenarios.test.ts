@@ -39,7 +39,6 @@ describe("E2E - Complex Task Management Scenarios", () => {
 
     const taskId = createResponse.body.data.id;
     expect(createResponse.body.data.status).toBe("TODO");
-    expect(createResponse.body.data.archived).toBe(false);
 
     // Update to IN_PROGRESS
     const inProgressResponse = await request(app)
@@ -61,15 +60,6 @@ describe("E2E - Complex Task Management Scenarios", () => {
 
     expect(doneResponse.body.data.status).toBe("DONE");
 
-    // Archive the completed task
-    const archiveResponse = await request(app)
-      .patch(`/api/tasks/${taskId}/toggle-archived`)
-      .set("Authorization", `Bearer ${token}`)
-      .expect(200);
-
-    expect(archiveResponse.body.data.archived).toBe(true);
-    expect(archiveResponse.body.data.status).toBe("DONE");
-
     // Verify final state
     const finalTaskResponse = await request(app)
       .get(`/api/tasks/${taskId}`)
@@ -77,7 +67,6 @@ describe("E2E - Complex Task Management Scenarios", () => {
       .expect(200);
 
     expect(finalTaskResponse.body.data.status).toBe("DONE");
-    expect(finalTaskResponse.body.data.archived).toBe(true);
   });
 
   it("should handle complex list and task organization", async () => {
@@ -365,14 +354,6 @@ describe("E2E - Complex Task Management Scenarios", () => {
     for (let i = 0; i < 10; i++) {
       await request(app)
         .patch(`/api/tasks/${taskIds[i]}/toggle-status`)
-        .set("Authorization", `Bearer ${token}`)
-        .expect(200);
-    }
-
-    // Archive first 5
-    for (let i = 0; i < 5; i++) {
-      await request(app)
-        .patch(`/api/tasks/${taskIds[i]}/toggle-archived`)
         .set("Authorization", `Bearer ${token}`)
         .expect(200);
     }

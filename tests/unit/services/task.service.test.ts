@@ -82,7 +82,6 @@ describe("TaskService", () => {
       expect(task.authorId).toBe(user.id);
       expect(task.status).toBe("TODO"); // Default
       expect(task.priority).toBe("LOW"); // Default
-      expect(task.archived).toBe(false);
     });
 
     it("should create task with all fields", async () => {
@@ -96,7 +95,6 @@ describe("TaskService", () => {
         dueDate,
         priority: "HIGH",
         authorId: user.id,
-        archived: false,
       });
 
       expect(task.taskName).toBe("Complete Task");
@@ -104,7 +102,6 @@ describe("TaskService", () => {
       expect(task.status).toBe("IN_PROGRESS");
       expect(task.dueDate?.toISOString()).toBe(dueDate.toISOString());
       expect(task.priority).toBe("HIGH");
-      expect(task.archived).toBe(false);
     });
 
     it("should create task with listId", async () => {
@@ -259,19 +256,6 @@ describe("TaskService", () => {
       expect(updated.dueDate?.toISOString()).toBe(newDate.toISOString());
     });
 
-    it("should update task archived status", async () => {
-      const user = await createTestUser();
-      const task = await createTestTask(user.id, { archived: false });
-
-      const updated = await TaskService.updateTask({
-        id: task.id,
-        authorId: user.id,
-        archived: true,
-      });
-
-      expect(updated.archived).toBe(true);
-    });
-
     it("should update multiple fields at once", async () => {
       const user = await createTestUser();
       const task = await createTestTask(user.id);
@@ -282,13 +266,11 @@ describe("TaskService", () => {
         taskName: "Multi Update",
         status: "IN_PROGRESS",
         priority: "HIGH",
-        archived: true,
       });
 
       expect(updated.taskName).toBe("Multi Update");
       expect(updated.status).toBe("IN_PROGRESS");
       expect(updated.priority).toBe("HIGH");
-      expect(updated.archived).toBe(true);
     });
 
     it("should connect task to a list", async () => {
@@ -414,67 +396,6 @@ describe("TaskService", () => {
     });
   });
 
-  describe("toggleTaskArchived", () => {
-    it("should toggle archived from false to true", async () => {
-      const user = await createTestUser();
-      const task = await createTestTask(user.id, { archived: false });
-
-      const toggled = await TaskService.toggleTaskArchived(user.id, task.id);
-
-      expect(toggled.archived).toBe(true);
-    });
-
-    it("should toggle archived from true to false", async () => {
-      const user = await createTestUser();
-      const task = await createTestTask(user.id, { archived: true });
-
-      const toggled = await TaskService.toggleTaskArchived(user.id, task.id);
-
-      expect(toggled.archived).toBe(false);
-    });
-
-    it("should toggle multiple times correctly", async () => {
-      const user = await createTestUser();
-      const task = await createTestTask(user.id, { archived: false });
-
-      const toggle1 = await TaskService.toggleTaskArchived(user.id, task.id);
-      expect(toggle1.archived).toBe(true);
-
-      const toggle2 = await TaskService.toggleTaskArchived(user.id, task.id);
-      expect(toggle2.archived).toBe(false);
-
-      const toggle3 = await TaskService.toggleTaskArchived(user.id, task.id);
-      expect(toggle3.archived).toBe(true);
-    });
-
-    it("should throw error for non-existent user", async () => {
-      const user = await createTestUser();
-      const task = await createTestTask(user.id);
-
-      await expect(
-        TaskService.toggleTaskArchived(99999, task.id),
-      ).rejects.toThrow("User not found");
-    });
-
-    it("should throw error for non-existent task", async () => {
-      const user = await createTestUser();
-
-      await expect(
-        TaskService.toggleTaskArchived(user.id, 99999),
-      ).rejects.toThrow("Task not found or does not belong to user");
-    });
-
-    it("should throw error when toggling another user's task", async () => {
-      const user1 = await createTestUser();
-      const user2 = await createTestUser();
-      const task = await createTestTask(user1.id);
-
-      await expect(
-        TaskService.toggleTaskArchived(user2.id, task.id),
-      ).rejects.toThrow("Task not found or does not belong to user");
-    });
-  });
-
   describe("toggleTaskStatus", () => {
     it("should toggle TODO to DONE", async () => {
       const user = await createTestUser();
@@ -597,7 +518,6 @@ describe("TaskService", () => {
         priority: "HIGH",
         dueDate,
         listId: list.id,
-        archived: false,
       });
 
       const found = await TaskService.getTaskById(user.id, task.id);

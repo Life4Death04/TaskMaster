@@ -46,7 +46,7 @@ app.use(express.urlencoded({ extended: true }));
 /**
  * Health Check Route
  */
-app.get("/health", (_req, res) => {
+app.get("/health", (_req: express.Request, res: express.Response) => {
   const response: HealthCheckResponse = {
     status: "OK",
     message: "TaskMaster API is running",
@@ -67,7 +67,7 @@ apiRoutes.forEach((router) => {
 /**
  * 404 Handler
  */
-app.use((req, res) => {
+app.use((req: express.Request, res: express.Response) => {
   const response: ApiNotFoundResponse = {
     success: false,
     message: "Route not found",

@@ -63,17 +63,6 @@ router.delete(
 );
 
 /**
- * PATCH /api/tasks/:taskId/toggle-archived
- * Toggle task archived status
- */
-router.patch(
-  "/tasks/:taskId/toggle-archived",
-  auth,
-  validate({ params: taskIdParamsSchema }),
-  TaskController.toggleArchived
-);
-
-/**
  * PATCH /api/tasks/:taskId/toggle-status
  * Toggle task status (TODO <-> DONE)
  */

@@ -79,17 +79,6 @@ describe("Task Schemas", () => {
       expect(result.listId).toBe(5);
     });
 
-    it("should accept optional archived flag", () => {
-      const archived = {
-        ...validTaskData,
-        archived: true,
-      };
-
-      const result = createTaskSchema.parse(archived);
-
-      expect(result.archived).toBe(true);
-    });
-
     it("should reject empty taskName", () => {
       expect(() => createTaskSchema.parse({ taskName: "" })).toThrow();
     });
@@ -162,7 +151,6 @@ describe("Task Schemas", () => {
         { id: 2, description: "Updated description" },
         { id: 3, status: "DONE" as const },
         { id: 4, priority: "HIGH" as const },
-        { id: 5, archived: true },
       ];
 
       updates.forEach((update) => {

@@ -45,7 +45,6 @@ export async function createTestTask(
       description: `Description for task ${taskCounter}`,
       status: "TODO",
       priority: "MEDIUM",
-      archived: false,
       authorId: userId,
       ...overrides,
     },

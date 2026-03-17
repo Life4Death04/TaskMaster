@@ -86,7 +86,6 @@ export async function createTask(input: {
   priority?: "LOW" | "MEDIUM" | "HIGH";
   authorId: number;
   listId?: number;
-  archived?: boolean;
 }): Promise<Task> {
   // Verify user exists
   const user = await prisma.user.findUnique({
@@ -120,7 +119,6 @@ export async function createTask(input: {
       priority: input.priority ?? "LOW",
       authorId: input.authorId,
       listId: input.listId ?? null,
-      archived: input.archived ?? false,
     },
   });
 
@@ -139,7 +137,6 @@ export async function updateTask(input: {
   dueDate?: Date | string;
   priority?: "LOW" | "MEDIUM" | "HIGH";
   listId?: number;
-  archived?: boolean;
 }): Promise<Task> {
   // Verify user exists
   const user = await prisma.user.findUnique({
@@ -190,7 +187,6 @@ export async function updateTask(input: {
       ? { connect: { id: input.listId } }
       : { disconnect: true };
   }
-  if (input.archived !== undefined) updateData.archived = input.archived;
 
   const updatedTask = await prisma.task.update({
     where: { id: input.id },
@@ -231,43 +227,6 @@ export async function deleteTaskById(
   await prisma.task.delete({
     where: { id: taskId },
   });
-}
-
-/**
- * Toggle task archived status
- */
-export async function toggleTaskArchived(
-  authorId: number,
-  taskId: number,
-): Promise<Task> {
-  // Verify user exists
-  const user = await prisma.user.findUnique({
-    where: { id: authorId },
-  });
-
-  if (!user) {
-    throw new NotFoundError("User not found");
-  }
-
-  // Find task and verify it belongs to user
-  const task = await prisma.task.findFirst({
-    where: {
-      id: taskId,
-      authorId: authorId,
-    },
-  });
-
-  if (!task) {
-    throw new NotFoundError("Task not found or does not belong to user");
-  }
-
-  // Toggle archived status
-  const updatedTask = await prisma.task.update({
-    where: { id: taskId },
-    data: { archived: !task.archived },
-  });
-
-  return updatedTask;
 }
 
 /**
