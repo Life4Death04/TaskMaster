@@ -4,6 +4,7 @@ import type {
   CreateListInput,
   UpdateListInput,
 } from "../schemas/list.schema.js";
+import { sanitizePagination } from "../utils/pagination.js";
 
 // Controller: handles HTTP layer for lists, delegates business logic to service
 
@@ -45,6 +46,15 @@ export async function createList(
 /**
  * Get all lists for authenticated user
  * GET /api/lists
+ * 
+ * Supports optional pagination via query parameters:
+ * - ?page=1&limit=10 → Returns paginated results with metadata
+ * - No params → Returns all lists (non-paginated)
+ * 
+ * Examples:
+ * GET /api/lists → All lists with all tasks
+ * GET /api/lists?page=1&limit=10 → First 10 lists
+ * GET /api/lists?page=2&limit=5 → Next 5 lists
  */
 export async function getLists(
   req: Request,
@@ -62,6 +72,37 @@ export async function getLists(
       return;
     }
 
+    // Check if pagination parameters are provided
+    const page = req.query.page;
+    const limit = req.query.limit;
+
+    // If pagination params are provided, use paginated endpoint
+    if (page !== undefined || limit !== undefined) {
+      // Parse and sanitize pagination parameters
+      const { page: validPage, limit: validLimit } = sanitizePagination(
+        Number(page) || 1,
+        Number(limit) || 10,
+      );
+
+      // Fetch paginated lists
+      const { lists, pagination } =
+        await ListService.getListsByUserIdPaginated(
+          userId,
+          validPage,
+          validLimit,
+        );
+
+      // Return paginated response
+      res.status(200).json({
+        success: true,
+        message: "Lists retrieved successfully",
+        data: lists,
+        pagination, // Include pagination metadata
+      });
+      return;
+    }
+
+    // If no pagination params, return all lists
     const lists = await ListService.getListsByUserId(userId);
 
     res.status(200).json({

@@ -4,12 +4,23 @@ import type {
   CreateTaskInput,
   UpdateTaskInput,
 } from "../schemas/task.schema.js";
+import { sanitizePagination } from "../utils/pagination.js";
 
 // Controller: handles HTTP layer for tasks, delegates business logic to service
 
 /**
  * Fetch all tasks for authenticated user
  * GET /api/tasks
+ * 
+ * Supports optional pagination via query parameters:
+ * - ?page=1&limit=20 → Returns paginated results with metadata (default: 20 per page)
+ * - No params → Returns all tasks (non-paginated)
+ * 
+ * Examples:
+ * GET /api/tasks → All tasks
+ * GET /api/tasks?page=1 → First 20 tasks (default limit)
+ * GET /api/tasks?page=1&limit=10 → First 10 tasks (custom limit)
+ * GET /api/tasks?page=2&limit=20 → Next 20 tasks
  */
 export async function fetchTasks(
   req: Request,
@@ -27,6 +38,36 @@ export async function fetchTasks(
       return;
     }
 
+    // Check if pagination parameters are provided in query string
+    const page = req.query.page;
+    const limit = req.query.limit;
+
+    // If pagination params are provided, use paginated endpoint
+    if (page !== undefined || limit !== undefined) {
+      // Parse and sanitize pagination parameters
+      // Default: 10 tasks per page
+      const { page: validPage, limit: validLimit } = sanitizePagination(
+        Number(page) || 1,
+        Number(limit) || 10,
+      );
+
+      // Fetch paginated tasks
+      const { tasks, pagination } = await TaskService.fetchUserTasksPaginated(
+        userId,
+        validPage,
+        validLimit,
+      );
+
+      // Return paginated response with metadata
+      res.status(200).json({
+        success: true,
+        data: tasks,
+        pagination, // Include pagination metadata
+      });
+      return;
+    }
+
+    // If no pagination params, return all tasks
     const tasks = await TaskService.fetchUserTasks(userId);
 
     res.status(200).json({

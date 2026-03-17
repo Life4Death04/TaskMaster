@@ -2,6 +2,7 @@
 import { Router } from "express";
 import { validate } from "../middlewares/validate.js";
 import { auth } from "../middlewares/auth.js";
+import { authLimiter } from "../config/rate-limit.js";
 // Importing validation schemas for user routes
 import {
   registerSchema,
@@ -14,14 +15,16 @@ import * as UserController from "../controllers/user.controller.js";
 // Creating the Express router to define routes
 const router = Router();
 
-// Auth routes
+// Auth routes (protected with stricter rate limiting)
 router.post(
   "/auth/register", // User registration route
+  authLimiter, // Stricter rate limiting for auth endpoints
   validate({ body: registerSchema }), // Validation middleware using the registration schema; validate runs before the controller and checks the request body
   UserController.register // Controller handling user registration logic
 );
 router.post(
   "/auth/login",
+  authLimiter, // Stricter rate limiting for auth endpoints
   validate({ body: loginSchema }),
   UserController.login
 );

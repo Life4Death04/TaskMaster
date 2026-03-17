@@ -1,12 +1,15 @@
 import { prisma } from "../config/database.js";
 import type { Task, Prisma } from "@prisma/client";
 import { NotFoundError } from "../utils/errors.js";
+import { calculateSkip, calculatePaginationMeta } from "../utils/pagination.js";
+import type { PaginationMeta } from "../types/response.types.js";
 
 // Service: encapsulates task business logic and data access with Prisma
 // Controllers call these functions; services should be unit-testable
 
 /**
- * Fetch all tasks for a specific user
+ * Fetch all tasks for a specific user (non-paginated)
+ * Use this when you need all tasks at once
  */
 export async function fetchUserTasks(userId: number): Promise<Task[]> {
   // Verify user exists
@@ -24,6 +27,52 @@ export async function fetchUserTasks(userId: number): Promise<Task[]> {
   });
 
   return tasks;
+}
+
+/**
+ * Fetch tasks for a specific user with pagination
+ * Use this for endpoints that return large lists of tasks
+ * 
+ * @param userId - The ID of the user
+ * @param page - Current page number (1-indexed)
+ * @param limit - Number of items per page
+ * @returns Object containing tasks array and pagination metadata
+ */
+export async function fetchUserTasksPaginated(
+  userId: number,
+  page: number,
+  limit: number,
+): Promise<{ tasks: Task[]; pagination: PaginationMeta }> {
+  // Verify user exists
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+  });
+
+  if (!user) {
+    throw new NotFoundError("User not found");
+  }
+
+  // 1. Count total tasks for this user (needed for pagination metadata)
+  const total = await prisma.task.count({
+    where: { authorId: userId },
+  });
+
+  // 2. Calculate how many items to skip based on page number
+  // Example: page 2, limit 10 → skip first 10 items
+  const skip = calculateSkip(page, limit);
+
+  // 3. Fetch the paginated tasks
+  const tasks = await prisma.task.findMany({
+    where: { authorId: userId },
+    orderBy: { id: "desc" }, // Most recent first
+    skip, // Skip items from previous pages
+    take: limit, // Take only 'limit' number of items
+  });
+
+  // 4. Calculate pagination metadata
+  const pagination = calculatePaginationMeta(total, page, limit);
+
+  return { tasks, pagination };
 }
 
 /**
