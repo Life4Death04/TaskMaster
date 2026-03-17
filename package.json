@@ -27,7 +27,6 @@
   "license": "ISC",
   "description": "TaskMaster Backend API - A modern TypeScript-based task management system",
   "dependencies": {
-    "typescript": "^5.9.3",
     "@prisma/client": "^6.19.1",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
@@ -39,6 +38,7 @@
     "express-rate-limit": "^8.2.1",
     "helmet": "^8.1.0",
     "jsonwebtoken": "^9.0.3",
+    "typescript": "^5.9.3",
     "zod": "^4.1.13"
   },
   "devDependencies": {
