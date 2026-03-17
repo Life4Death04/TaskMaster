@@ -1,5 +1,3 @@
-/// <reference types="node" />
-
 import { z } from "zod";
 import dotenv from "dotenv";
 
