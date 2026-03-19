@@ -5,6 +5,35 @@ import dotenv from "dotenv";
 dotenv.config();
 
 /**
+ * Construct DATABASE_URL from RDS environment variables (AWS Elastic Beanstalk)
+ * or use directly provided DATABASE_URL (local development)
+ */
+const constructDatabaseUrl = (): string => {
+  // If DATABASE_URL is set directly, use it (for local dev)
+  if (process.env.DATABASE_URL) {
+    return process.env.DATABASE_URL;
+  }
+
+  // Otherwise, construct from RDS environment variables (for AWS EB)
+  const { RDS_HOSTNAME, RDS_PORT, RDS_DB_NAME, RDS_USERNAME, RDS_PASSWORD } =
+    process.env;
+
+  if (
+    RDS_HOSTNAME &&
+    RDS_PORT &&
+    RDS_DB_NAME &&
+    RDS_USERNAME &&
+    RDS_PASSWORD
+  ) {
+    return `postgresql://${RDS_USERNAME}:${RDS_PASSWORD}@${RDS_HOSTNAME}:${RDS_PORT}/${RDS_DB_NAME}`;
+  }
+
+  throw new Error(
+    "No database configuration found. Provide DATABASE_URL or RDS_* variables."
+  );
+};
+
+/**
  * Environment variable schema using Zod
  * This ensures all required environment variables are present and valid
  */
@@ -15,8 +44,8 @@ const envSchema = z.object({
     .enum(["development", "production", "test"])
     .default("development"),
 
-  // Database
-  DATABASE_URL: z.string().min(1, "Database URL is required"),
+  // Database - will be constructed if not provided
+  DATABASE_URL: z.string().min(1).default(constructDatabaseUrl()),
 
   // JWT Secret
   JWT_SECRET: z.string().min(32, "JWT secret must be at least 32 characters"),
