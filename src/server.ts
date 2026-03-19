@@ -32,7 +32,7 @@ app.use(generalLimiter);
  */
 app.use(
   cors({
-    origin: env.CORS_ORIGIN,
+    origin: process.env.CORS_ORIGIN,
     credentials: true,
   }),
 );
